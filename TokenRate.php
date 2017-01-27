@@ -1,5 +1,9 @@
 <?
 
+namespace iFixit\TokenBucket;
+
+use \DateInterval;
+
 /**
  * Defines a rate limit for token bucketing. Specify the tokens you want to
  * allow and then the time span in which that amount is allowed to occur in.

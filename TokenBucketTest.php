@@ -1,10 +1,17 @@
 <?
 
+namespace iFixit\TokenBucket;
+
 error_reporting(E_ALL);
 
-require_once("TokenRate.php");
-require_once("TokenBucket.php");
-require_once("StaticCache.php");
+use \DateTime;
+use \DateInterval;
+
+use PHPUnit_Framework_TestCase;
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'StaticCache.php';
 
 class TokenBucketTest extends PHPUnit_Framework_TestCase {
    public function testGetSingleToken() {

@@ -1,6 +1,13 @@
 <?
 
-use iFixit\Matryoshka\Backend as Backend;
+namespace iFixit\TokenBucket;
+
+use \DateTime;
+use \DateInterval;
+use \InvalidArgumentException;
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
 
 /**
  * Implements the token bucket algorithm and stores tokens in cache.
@@ -16,18 +23,14 @@ class TokenBucket {
    /**
     * @param $identifier string to uniqely store the bucket.
     */
-   public function __construct($key, Backend $backend, TokenRate $rate, $max) {
+   public function __construct($key, Backend $backend, TokenRate $rate) {
       if (!is_string($key)) {
          throw InvalidArgumentException("identifier must be a string");
-      }
-      if (!is_int($max)) {
-         throw InvalidArgumentException("max should be an integer");
       }
 
       $this->key = $key;
       $this->backend = $backend;
       $this->rate = $rate;
-      $this->max = $max;
    }
 
    /**
@@ -49,6 +52,7 @@ class TokenBucket {
          return [false, $this->readyTime($amount, $tokens, $lastConsume)];
       }
 
+      $now = new DateTime();
       $this->storeTokens($tokens, $now->getTimestamp());
       return [true, $now];
    }
@@ -64,15 +68,15 @@ class TokenBucket {
     *               current time if there wasn't a stored bucket.
     */
    private function getTokenCountHelper() {
-      $lastConsumeDate = (new DateTime())->setTimestamp($lastConsume);
-
-      $cached = $this->backend->get($this->key);
-      if ($cached === null) {
-         return [$this->max, $lastConsumeDate];
+      $now = (new DateTime());
+      $storedBucket = $this->backend->get($this->key);
+      if ($storedBucket === Backend::MISS) {
+         return [$this->rate->tokens, $now];
       }
 
-      return [$this->updateTokens($tokens, $lastConsumeDate), $lastConsumeDate];
-   }
+      return [$this->updateTokens($storedBucket->getTokens(),
+       $storedBucket->getLastConsume()), $storedBucket->getLastConsume()];
+      }
 
    /**
     * Updates tokens to the amount that it should be after restoring the tokens
@@ -92,7 +96,7 @@ class TokenBucket {
       // Don't go over int max if we're going to use this as an int.
       $tokens = (int)min(PHP_INT_MAX, $tokens);
       // don't go over maximum tokens.
-      return min($this->max, $tokens);
+      return min($this->rate->tokens, $tokens);
    }
 
    /**
@@ -101,13 +105,15 @@ class TokenBucket {
     * it will return null, since there will never be a ready time.
     */
    private function readyTime($amount, $tokens, $lastConsume) {
-      if ($amount > $this->max) {
+      if ($amount > $this->rate->tokens) {
          return null;
       }
 
       $readyDate = new DateTime();
-      $readyFromNow = new DateInterval(
-       "PT" . $this->rate->getRate() * ($amount - $tokens) . "S");
+      $ready = floor($this->rate->getRate() * ($amount - $tokens));
+      // Don't go over int 32 bit signed int max for date times.
+      $ready = (int)min(2147483647, $ready);
+      $readyFromNow = new DateInterval("PT" . $ready . "S");
       return $readyDate->add($readyFromNow);
    }
 
@@ -115,15 +121,15 @@ class TokenBucket {
     * Stores the bucket if the ready time is after now.
     */
    private function storeTokens($tokens, $lastConsume) {
-      $now = new DateTime();
-      $readyTime = $this->readyTime($this->max, $tokens, $lastConsume);
+      $readyTime = $this->readyTime($this->rate->tokens, $tokens, $lastConsume);
       if (!$readyTime) {
          return;
       }
 
+      $now = new DateTime();
       $expireTime = $now->diff($readyTime)->s;
 
-      $this->backend->set($this->key, [$tokens, $now->getTimestamp()],
-       $expireTime);
+      $storedBucket = new StoredBucket($tokens, $now);
+      $this->backend->set($this->key, $storedBucket, $expireTime);
    }
 }

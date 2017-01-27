@@ -1,8 +1,16 @@
 <?
 
-require_once("TokenRate.php");
+namespace iFixit\TokenBucket;
 
 error_reporting(E_ALL);
+
+use \DateInterval;
+
+use PHPUnit_Framework_TestCase;
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
+
 
 class TokenRateTest extends PHPUnit_Framework_TestCase {
    public function testRate() {
@@ -17,7 +25,7 @@ class TokenRateTest extends PHPUnit_Framework_TestCase {
 
    public function testZeroRate() {
       $rate = new TokenRate(0, new DateInterval("PT10S"));
-      $this->assertSame(0.0, $rate->getRate());
+      $this->assertSame(0, $rate->getRate());
    }
 
    /**
@@ -30,7 +38,7 @@ class TokenRateTest extends PHPUnit_Framework_TestCase {
    }
 
    /**
-    * I'm not sure when negative time means for token buckets, but it's still a
+    * I'm not sure what negative time means for token buckets, but it's still a
     * rate.
     */
    public function testNegativeTimeRate() {

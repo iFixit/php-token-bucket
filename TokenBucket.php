@@ -10,10 +10,10 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
 
 /**
- * Implements the token bucket algorithm and stores tokens in cache.
+ * Implements the token bucket algorithm and stores tokens in storage.
  */
 class TokenBucket {
-   // String to identify this bucket uniquely in cache.
+   // String to identify this bucket uniquely in storage.
    private $identifier;
    // TokenRate is when your parents try to ration your arcade spending.
    private $rate;

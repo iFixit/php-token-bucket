@@ -8,4 +8,4 @@ php:
    - hhvm
 
 script:
-   - phpunit TokenBucketTest.php TokenRateTest.php
+   - phpunit .

@@ -38,7 +38,7 @@ class TokenBucket {
     * is returned for when the next token will be available.
     *
     * @return array index 0 being a boolean whether or not a token was consumed
-    *               index 1 being a datetime object of when there will be
+    *               index 1 being a timestamp of when there will be
     *               enough tokens to consume the amount requested.
     */
    public function consume($amount) {
@@ -54,7 +54,7 @@ class TokenBucket {
 
       $now = new DateTime();
       $this->storeTokens($tokens, $now->getTimestamp());
-      return [true, $now];
+      return [true, $now->getTimestamp()];
    }
 
    public function getTokenCount() {

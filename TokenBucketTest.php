@@ -39,6 +39,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $bucket = new TokenBucket($identifier, $backend, $rate);
 
       list($consumed, $timeUntilReady) = $bucket->consume(1);
+      $timeUntilReady = (new DateTime())->setTimestamp($timeUntilReady);
       $this->assertTrue($consumed, "Didn't consume token.");
       $this->assertTrue($timeUntilReady->diff(new DateTime())->s >= 0,
        "Time until ready is after now");
@@ -55,6 +56,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
 
 
       list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
+      $timeUntilReady = (new DateTime())->setTimestamp($timeUntilReady);
       $this->assertTrue($consumed, "Dindn't consume a token.");
       $this->assertSame(0, $timeUntilReady->diff(new DateTime())->s,
        "Time until ready is after now");
@@ -79,6 +81,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
 
 
       list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
+      $timeUntilReady = (new DateTime())->setTimestamp($timeUntilReady);
       $this->assertTrue($consumed, "Dindn't consume a token.");
       $this->assertTrue($timeUntilReady->diff(new DateTime())->s >= 0,
        "Time until ready is after now");

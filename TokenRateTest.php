@@ -14,17 +14,17 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
 
 class TokenRateTest extends PHPUnit_Framework_TestCase {
    public function testRate() {
-      $rate = new TokenRate(1, new DateInterval("PT01S"));
+      $rate = new TokenRate(1, 1);
       $this->assertSame(1.0, $rate->getRate());
    }
 
    public function testLargerRate() {
-      $rate = new TokenRate(10, new DateInterval("PT10S"));
+      $rate = new TokenRate(10, 10);
       $this->assertSame(1.0, $rate->getRate());
    }
 
    public function testZeroRate() {
-      $rate = new TokenRate(0, new DateInterval("PT10S"));
+      $rate = new TokenRate(0, 10);
       $this->assertSame(0, $rate->getRate());
    }
 
@@ -33,7 +33,7 @@ class TokenRateTest extends PHPUnit_Framework_TestCase {
     * rate.
     */
    public function testNegativeTokenRate() {
-      $rate = new TokenRate(-5, new DateInterval("PT10S"));
+      $rate = new TokenRate(-5, 10);
       $this->assertSame(-0.5, $rate->getRate());
    }
 
@@ -42,9 +42,7 @@ class TokenRateTest extends PHPUnit_Framework_TestCase {
     * rate.
     */
    public function testNegativeTimeRate() {
-      $interval = new DateInterval("PT10S");
-      $interval->invert = true;
-      $rate = new TokenRate(10, $interval);
+      $rate = new TokenRate(10, -10);
       $this->assertSame(-1.0, $rate->getRate());
    }
 }

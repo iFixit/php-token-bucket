@@ -5,31 +5,42 @@ namespace iFixit\TokenBucket;
 use \DateInterval;
 
 /**
- * Defines a rate limit for token bucketing. Specify the tokens you want to
- * allow and then the time span in which that amount is allowed to occur in.
+ * Defines a rate of tokens per second. Specify the tokens you want to
+ * allow for a given number of seconds.
  */
 class TokenRate {
-   public $tokens;
-   public $interval;
+   private $rate;
 
-   public function __construct($tokens, DateInterval $interval) {
+   public function __construct($tokens, $seconds) {
       if (!is_int($tokens)) {
          throw InvalidArgumentException("Tokens must be an int");
       }
+      if (!is_int($seconds)) {
+         throw InvalidArgumentException("Seconds must be an int");
+      }
 
       $this->tokens = $tokens;
-      $this->interval = $interval;
+      $this->seconds = $seconds;
+
+      if ($this->tokens == 0 || $this->seconds == 0) {
+         $this->rate = 0;
+      } else {
+         $this->rate = (double)$this->tokens / (double)$this->seconds;
+      }
    }
 
    /**
-    * @return double tokens per interval
+    * @return double rate of token regenerationo
     */
    public function getRate() {
-      if ($this->interval->s == 0 || $this->tokens == 0) {
-         return 0;
-      }
+      return $this->rate;
+   }
 
-      $rate = (double)$this->tokens / (double)$this->interval->s;
-      return $this->interval->invert ? -$rate : $rate;
+   public function getTokens() {
+      return $this->tokens;
+   }
+
+   public function getSeconds() {
+      return $this->seconds();
    }
 }

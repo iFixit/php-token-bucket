@@ -2,13 +2,23 @@
 
 namespace iFixit\TokenBucket;
 
-use \DateTime;
+use \InvalidArgumentException;
 
 class StoredBucket {
    private $tokens;
    private $lastConsume;
 
-   public function __construct($tokens, DateTime $lastConsume) {
+   /**
+    * @param $lastConsume number of seconds since the last consumption.
+    */
+   public function __construct($tokens, $lastConsume) {
+      if (!is_double($lastConsume)) {
+         throw new InvalidArgumentException("lastConsume should be an int");
+      }
+      if (!is_int($tokens)) {
+         throw new InvalidArgumentException("tokens should be an int");
+      }
+
       $this->tokens = $tokens;
       $this->lastConsume = $lastConsume;
    }

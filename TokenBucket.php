@@ -2,8 +2,6 @@
 
 namespace iFixit\TokenBucket;
 
-use \DateTime;
-use \DateInterval;
 use \InvalidArgumentException;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
@@ -52,9 +50,9 @@ class TokenBucket {
          return [false, $this->readyTime($amount, $tokens, $lastConsume)];
       }
 
-      $now = new DateTime();
-      $this->storeTokens($tokens, $now->getTimestamp());
-      return [true, $now->getTimestamp()];
+      $now = microtime(true);
+      $this->storeTokens($tokens, $now);
+      return [true, $now];
    }
 
    public function getTokenCount() {
@@ -68,10 +66,9 @@ class TokenBucket {
     *               current time if there wasn't a stored bucket.
     */
    private function getTokenCountHelper() {
-      $now = (new DateTime());
       $storedBucket = $this->backend->get($this->key);
       if ($storedBucket === Backend::MISS) {
-         return [$this->rate->tokens, $now];
+         return [$this->rate->tokens, microtime(true)];
       }
 
       return [$this->updateTokens($storedBucket->getTokens(),
@@ -82,12 +79,15 @@ class TokenBucket {
     * Updates tokens to the amount that it should be after restoring the tokens
     * that have been regenerated from the last consume to now.
     */
-   private function updateTokens($tokens, DateTime $lastConsume) {
+   private function updateTokens($tokens, $lastConsume) {
       if (!is_int($tokens)) {
          throw new InvalidArgumentException("tokens must be an int");
       }
+      if (!is_double($lastConsume)) {
+         throw new InvalidArgumentException("lastConsume must be a double");
+      }
 
-      $timeLapse = $lastConsume->diff(new DateTime())->s;
+      $timeLapse = microtime() - $lastConsume;
       if ($timeLapse == 0) {
          return $tokens;
       }
@@ -105,31 +105,46 @@ class TokenBucket {
     * it will return null, since there will never be a ready time.
     */
    private function readyTime($amount, $tokens, $lastConsume) {
+      if (!is_int($amount)) {
+         throw new InvalidArgumentException("amount must be an int");
+      }
+      if (!is_int($tokens)) {
+         throw new InvalidArgumentException("tokens must be an int");
+      }
+      if (!is_double($lastConsume)) {
+         throw new InvalidArgumentException("lastConsume must be a double");
+      }
+
       if ($amount > $this->rate->tokens) {
          return null;
       }
 
-      $readyDate = new DateTime();
-      $ready = floor($this->rate->getRate() * ($amount - $tokens));
-      // Don't go over int 32 bit signed int max for date times.
-      $ready = (int)min(2147483647, $ready);
-      $readyFromNow = new DateInterval("PT" . $ready . "S");
-      return $readyDate->add($readyFromNow);
+      $untilReady = floor($this->rate->getRate() * ($amount - $tokens));
+      // Don't go overflow
+      $untilReady = (int)min(PHP_INT_MAX, $untilReady);
+      return $untilReady ;
    }
 
    /**
     * Stores the bucket if the ready time is after now.
     */
    private function storeTokens($tokens, $lastConsume) {
+      if (!is_int($tokens)) {
+         throw new InvalidArgumentException("tokens must be an int");
+      }
+      if (!is_double($lastConsume)) {
+         throw new InvalidArgumentException("lastConsume must be a double");
+      }
+
       $readyTime = $this->readyTime($this->rate->tokens, $tokens, $lastConsume);
-      if (!$readyTime) {
+      if (!$readyTime && $this->rate->getRate() != 0) {
          return;
       }
 
-      $now = new DateTime();
-      $expireTime = $now->diff($readyTime)->s;
+      $now = microtime(true);
+      $expireTime = $now - $readyTime;
 
       $storedBucket = new StoredBucket($tokens, $now);
-      $this->backend->set($this->key, $storedBucket, $expireTime);
+      $this->backend->set($this->key, $storedBucket, (int)round($expireTime));
    }
 }

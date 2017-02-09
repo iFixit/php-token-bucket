@@ -2,7 +2,7 @@
 
 namespace iFixit\TokenBucket;
 
-use \DateInterval;
+use \InvalidArgumentException;
 
 /**
  * Defines a rate of tokens per second. Specify the tokens you want to
@@ -13,10 +13,10 @@ class TokenRate {
 
    public function __construct($tokens, $seconds) {
       if (!is_int($tokens)) {
-         throw InvalidArgumentException("Tokens must be an int");
+         throw new InvalidArgumentException("Tokens must be an int");
       }
       if (!is_int($seconds)) {
-         throw InvalidArgumentException("Seconds must be an int");
+         throw new InvalidArgumentException("Seconds must be an int");
       }
 
       $this->tokens = $tokens;

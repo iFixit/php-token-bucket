@@ -25,7 +25,7 @@ class TokenBucket {
     */
    public function __construct($key, Backend $backend, TokenRate $rate) {
       if (!is_string($key)) {
-         throw InvalidArgumentException("identifier must be a string");
+         throw new InvalidArgumentException("identifier must be a string");
       }
 
       $this->key = $key;
@@ -43,7 +43,7 @@ class TokenBucket {
     */
    public function consume($amount) {
       if (!is_int($amount)) {
-         throw InvalidArgumentException("amount must be an int");
+         throw new InvalidArgumentException("amount must be an int");
       }
 
       list($tokens, $lastConsume) = $this->getTokenCountHelper();
@@ -84,7 +84,7 @@ class TokenBucket {
     */
    private function updateTokens($tokens, DateTime $lastConsume) {
       if (!is_int($tokens)) {
-         throw InvalidArgumentException("tokens must be an int");
+         throw new InvalidArgumentException("tokens must be an int");
       }
 
       $timeLapse = $lastConsume->diff(new DateTime())->s;

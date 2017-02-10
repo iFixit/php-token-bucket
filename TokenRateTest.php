@@ -45,4 +45,18 @@ class TokenRateTest extends PHPUnit_Framework_TestCase {
       $rate = new TokenRate(10, -10);
       $this->assertSame(-1.0, $rate->getRate());
    }
+
+   /**
+    * When DateInterval was using anything but seconds was a problem,
+    * because the DateInterval class won't convert itself into purely seconds
+    * for something like $interval->s. Assert that time larger than
+    * seconds works.
+    */
+   public function testPeriodRate() {
+      $rate = new TokenRate(60, 10);
+      $this->assertSame(6.0, $rate->getRate());
+
+      $rate = new TokenRate(2, 3600 * 24 * 30);
+      $this->assertSame(2 / (3600 * 24 * 30), $rate->getRate());
+   }
 }

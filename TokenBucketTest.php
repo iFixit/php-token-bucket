@@ -17,7 +17,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $rate = new TokenRate(1, 0);
       $bucket = new TokenBucket($identifier, $backend, $rate);
 
-      $this->assertSame(1, $bucket->getTokenCount());
+      $this->assertSame(1, $bucket->getTokens());
    }
 
    public function testGetMultipleTokens() {
@@ -26,7 +26,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $rate = new TokenRate(10000, 0);
       $bucket = new TokenBucket($identifier, $backend, $rate);
 
-      $this->assertSame(10000, $bucket->getTokenCount());
+      $this->assertSame(10000, $bucket->getTokens());
    }
 
    public function testConsumeSingleToken() {
@@ -43,7 +43,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(round($timeUntilReady) >= 0,
        "TimeuntilReady is not now");
 
-      $this->assertSame(9999, $bucket->getTokenCount());
+      $this->assertSame(9999.0, $bucket->getTokens());
    }
 
    public function testConsumeManyTokens() {
@@ -58,7 +58,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertTrue(0 < round($timeUntilReady), "Ready when the bucket
        shouldn't be");
-      $this->assertSame(0, $bucket->getTokenCount());
+      $this->assertSame(0.0, $bucket->getTokens());
    }
 
    public function testFailureToConsume() {
@@ -84,10 +84,10 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
       $this->assertTrue(is_bool($consumed));
       $this->assertTrue(is_double($timeUntilReady));
-      $this->assertTrue($consumed, "Dindn't consume a token.");
+      $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertTrue(round($timeUntilReady) >= 0,
        "Time until ready is after now");
       sleep(1);
-      $this->assertTrue($bucket->getTokenCount() > 0, "didn't regen tokens");
+      $this->assertTrue($bucket->getTokens() > 0, "didn't regen tokens");
    }
 }

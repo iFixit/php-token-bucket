@@ -9,6 +9,17 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
 
 /**
  * Implements the token bucket algorithm and stores tokens in storage.
+ *
+ * The rate of token regeneration is specified by the TokenRate class. This
+ * also specifies the maximum number of tokens the bucket can hold.
+ *
+ * The current number of tokens is time sensative so it is not stored as a
+ * member of the class, instead you will have to call getTokens() to calculate
+ * and retrieve the current number of tokens.
+ *
+ * Last consume can possibly be changed by another concurrent request, and
+ * therefore is also not stored in the Object's state and always retrieved from
+ * storage when needed.
  */
 class TokenBucket {
    // String to identify this bucket uniquely in storage.
@@ -44,36 +55,38 @@ class TokenBucket {
          throw new InvalidArgumentException("amount must be an int");
       }
 
-      list($tokens, $lastConsume) = $this->getTokenCountHelper();
-      $tokens -= $amount;
-      if ($tokens < 0) {
-         return [false, $this->readyTime($amount, $tokens, $lastConsume)];
+      $storedBucket = $this->backend->get($this->key);
+      if ($storedBucket === Backend::MISS) {
+         $storedBucket = new StoredBucket($this->rate->tokens, microtime(true));
+      }
+      $tokens = $storedBucket->getTokens();
+      $lastConsume = $storedBucket->getLastConsume();
+
+      $updatedTokens = $tokens - $amount;
+      $now = microtime(true);
+      $newBucket = new StoredBucket($updatedTokens, $now);
+      if ($updatedTokens < 0) {
+         return [false, $this->readyTime($amount, $newBucket)];
       }
 
-      $now = microtime(true);
-      $this->storeTokens($tokens, $now);
+      $this->storeBucket($newBucket);
       return [true, $now];
    }
 
-   public function getTokenCount() {
-      list($tokens, $_) = $this->getTokenCountHelper();
-      return $tokens;
-   }
-
    /**
-    * @return array index 0 the number of tokens in the bucket
-    *               index 1 the last consumtion of a token, this will be the
-    *               current time if there wasn't a stored bucket.
+    * @return $tokens int the total number of tokens in the bucket currently.
     */
-   private function getTokenCountHelper() {
+   public function getTokens() {
       $storedBucket = $this->backend->get($this->key);
       if ($storedBucket === Backend::MISS) {
-         return [$this->rate->tokens, microtime(true)];
+         return $this->rate->tokens;
       }
 
-      return [$this->updateTokens($storedBucket->getTokens(),
-       $storedBucket->getLastConsume()), $storedBucket->getLastConsume()];
-      }
+      $currentTokens = $storedBucket->getTokens();
+      $lastConsume = $storedBucket->getLastConsume();
+      $updatedTokens = $this->updateTokens($currentTokens, $lastConsume);
+      return $updatedTokens;
+   }
 
    /**
     * Updates tokens to the amount that it should be after restoring the tokens
@@ -87,64 +100,47 @@ class TokenBucket {
          throw new InvalidArgumentException("lastConsume must be a double");
       }
 
-      $timeLapse = microtime() - $lastConsume;
+      $timeLapse = microtime(true) - $lastConsume;
       if ($timeLapse == 0) {
          return $tokens;
       }
 
       $tokens += floor($timeLapse * $this->rate->getRate());
-      // Don't go over int max if we're going to use this as an int.
-      $tokens = (int)min(PHP_INT_MAX, $tokens);
       // don't go over maximum tokens.
       return min($this->rate->tokens, $tokens);
    }
 
    /**
-    * Returns the DateTime when the amount requested will be available.
-    * if the amount requested is higher than the max of the token bucket then
-    * it will return null, since there will never be a ready time.
+    * Returns the number of seconds from when the amount requested will be
+    * available.
+    *
+    * If the amount requested is higher than the maximum amouunt of
+    * tokens the bucket can hold then return null to show that it will never be
+    * ready, since it can never regenerate up to that point.
     */
-   private function readyTime($amount, $tokens, $lastConsume) {
-      if (!is_int($amount)) {
+   private function readyTime($consumeAmount, StoredBucket $stored) {
+      if (!is_int($consumeAmount)) {
          throw new InvalidArgumentException("amount must be an int");
       }
-      if (!is_int($tokens)) {
-         throw new InvalidArgumentException("tokens must be an int");
-      }
-      if (!is_double($lastConsume)) {
-         throw new InvalidArgumentException("lastConsume must be a double");
-      }
 
-      if ($amount > $this->rate->tokens) {
+      if ($consumeAmount > $this->rate->tokens) {
          return null;
       }
 
-      $untilReady = floor($this->rate->getRate() * ($amount - $tokens));
-      // Don't go overflow
-      $untilReady = (int)min(PHP_INT_MAX, $untilReady);
-      return $untilReady ;
+      $tokens = $stored->getTokens();
+      return $this->rate->getRate() * ($consumeAmount - $tokens);
    }
 
    /**
-    * Stores the bucket if the ready time is after now.
+    * Stores the current bucket which is the current number of tokens and the
+    * last consume for the length of time it will take to regenerate all tokens
+    * again.
     */
-   private function storeTokens($tokens, $lastConsume) {
-      if (!is_int($tokens)) {
-         throw new InvalidArgumentException("tokens must be an int");
-      }
-      if (!is_double($lastConsume)) {
-         throw new InvalidArgumentException("lastConsume must be a double");
-      }
+   private function storeBucket(StoredBucket $bucket) {
+      $tokens = $bucket->getTokens();
+      $lastConsume = $bucket->getLastConsume();
+      $readyTime = $this->readyTime($this->rate->tokens, $bucket);
 
-      $readyTime = $this->readyTime($this->rate->tokens, $tokens, $lastConsume);
-      if (!$readyTime && $this->rate->getRate() != 0) {
-         return;
-      }
-
-      $now = microtime(true);
-      $expireTime = $now - $readyTime;
-
-      $storedBucket = new StoredBucket($tokens, $now);
-      $this->backend->set($this->key, $storedBucket, (int)round($expireTime));
+      $this->backend->set($this->key, $bucket, $readyTime);
    }
 }

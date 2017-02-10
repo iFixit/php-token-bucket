@@ -15,7 +15,7 @@ class TokenRate {
       if (!is_int($tokens)) {
          throw new InvalidArgumentException("Tokens must be an int");
       }
-      if (!is_int($seconds)) {
+      if (!is_numeric($seconds)) {
          throw new InvalidArgumentException("Seconds must be an int");
       }
 
@@ -30,7 +30,7 @@ class TokenRate {
    }
 
    /**
-    * @return double rate of token regenerationo
+    * @return double rate of token regeneration
     */
    public function getRate() {
       return $this->rate;

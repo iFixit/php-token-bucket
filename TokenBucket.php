@@ -23,11 +23,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
  */
 class TokenBucket {
    // String to identify this bucket uniquely in storage.
-   private $identifier;
+   private $key;
    // TokenRate is when your parents try to ration your arcade spending.
    private $rate;
    // Where the token is to be stored.
-   private $storage;
+   private $backend;
 
    /**
     * @param $identifier string to uniqely store the bucket.

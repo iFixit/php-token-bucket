@@ -10,6 +10,8 @@ use \InvalidArgumentException;
  */
 class TokenRate {
    private $rate;
+   private $tokens;
+   private $seconds;
 
    public function __construct($tokens, $seconds) {
       if (!is_int($tokens)) {

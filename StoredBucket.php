@@ -12,7 +12,7 @@ class StoredBucket {
     * @param $lastConsume number of seconds since the last consumption.
     */
    public function __construct($tokens, $lastConsume) {
-      if (!is_double($lastConsume)) {
+      if (!is_numeric($lastConsume)) {
          throw new InvalidArgumentException("lastConsume should be an int");
       }
       if (!is_int($tokens)) {

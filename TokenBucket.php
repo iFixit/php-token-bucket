@@ -84,7 +84,7 @@ class TokenBucket {
 
       $currentTokens = $storedBucket->getTokens();
       $lastConsume = $storedBucket->getLastConsume();
-      $updatedTokens = $this->updateTokens($currentTokens, $lastConsume);
+      $updatedTokens = $this->calculateCurrentTokens($storedBucket);
       return $updatedTokens;
    }
 
@@ -92,13 +92,9 @@ class TokenBucket {
     * Updates tokens to the amount that it should be after restoring the tokens
     * that have been regenerated from the last consume to now.
     */
-   private function updateTokens($tokens, $lastConsume) {
-      if (!is_int($tokens)) {
-         throw new InvalidArgumentException("tokens must be an int");
-      }
-      if (!is_double($lastConsume)) {
-         throw new InvalidArgumentException("lastConsume must be a double");
-      }
+   private function calculateCurrentTokens(StoredBucket $stored) {
+      $tokens = $stored->getTokens();
+      $lastConsume = $stored->getLastConsume();
 
       $timeLapse = microtime(true) - $lastConsume;
       if ($timeLapse == 0) {

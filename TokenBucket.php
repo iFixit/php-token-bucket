@@ -137,8 +137,6 @@ class TokenBucket {
     * again.
     */
    private function storeBucket(StoredBucket $bucket) {
-      $tokens = $bucket->getTokens();
-      $lastConsume = $bucket->getLastConsume();
       $readyTime = $this->readyTime($this->rate->tokens, $bucket);
 
       $this->backend->set($this->key, $bucket, $readyTime);

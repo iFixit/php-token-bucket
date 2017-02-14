@@ -43,12 +43,17 @@ class TokenBucket {
    }
 
    /**
-    * Tries to consume a token, if a token can't be consumed, then a DateTime
+    * Tries to consume a token, if a token can't be consumed, then the interval
+    * of seconds for when the consume will be valid will be.
     * is returned for when the next token will be available.
     *
+    * @param amount is an integer amount of tokens that will be attempted to be
+    * consumed
+    *
     * @return array index 0 being a boolean whether or not a token was consumed
-    *               index 1 being a timestamp of when there will be
-    *               enough tokens to consume the amount requested.
+    *
+    *               index 1 being a double interval of seconds when there
+    *               will be enough tokens to consume the amount requested.
     */
    public function consume($amount) {
       if (!is_int($amount)) {
@@ -64,11 +69,12 @@ class TokenBucket {
       $lastConsume = $storedBucket->getLastConsume();
 
       $updatedTokens = $tokens - $amount;
-      $newBucket = new StoredBucket($updatedTokens, $now);
       if ($updatedTokens < 0) {
+         $newBucket = new StoredBucket($tokens, $now);
          return [false, $this->readyTime($amount, $newBucket)];
       }
 
+      $newBucket = new StoredBucket($updatedTokens, $now);
       $this->storeBucket($newBucket);
       return [true, $now];
    }
@@ -124,7 +130,7 @@ class TokenBucket {
       }
 
       $tokens = $stored->getTokens();
-      return $this->rate->getRate() * ($consumeAmount - $tokens);
+      return min(0, $this->rate->getRate() * ($consumeAmount - $tokens));
    }
 
    /**

@@ -55,7 +55,7 @@ class TokenBucket {
          throw new InvalidArgumentException("amount must be an int");
       }
 
-      $now = microtime(true);
+      $now = $this->microtime();
       $storedBucket = $this->backend->get($this->key);
       if ($storedBucket === Backend::MISS) {
          $storedBucket = new StoredBucket($this->rate->getTokens(), $now);
@@ -96,7 +96,7 @@ class TokenBucket {
       $tokens = $stored->getTokens();
       $lastConsume = $stored->getLastConsume();
 
-      $timeLapse = microtime(true) - $lastConsume;
+      $timeLapse = $this->microtime() - $lastConsume;
       if ($timeLapse == 0) {
          return $tokens;
       }
@@ -136,5 +136,9 @@ class TokenBucket {
       $readyTime = $this->readyTime($this->rate->getTokens(), $bucket);
 
       $this->backend->set($this->key, $bucket, $readyTime);
+   }
+
+   protected function microtime() {
+      return microtime(true);
    }
 }

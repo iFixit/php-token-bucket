@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 use PHPUnit_Framework_TestCase;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestTokenBucket.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'StaticCache.php';
 
@@ -15,7 +15,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_get";
       $rate = new TokenRate(1, 0);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       $this->assertSame(1, $bucket->getTokens());
    }
@@ -24,7 +24,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_get_multiple";
       $rate = new TokenRate(10000, 0);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       $this->assertSame(10000, $bucket->getTokens());
    }
@@ -33,7 +33,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_consume";
       $rate = new TokenRate(10000, 0);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       list($consumed, $timeUntilReady) = $bucket->consume(1);
       $this->assertTrue(is_bool($consumed));
@@ -50,7 +50,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_fail_consume";
       $rate = new TokenRate(PHP_INT_MAX, 0);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
       $this->assertTrue(is_bool($consumed));
@@ -65,7 +65,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_fail_consume";
       $rate = new TokenRate(0, 0);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       list($consumed, $timeUntilReady) = $bucket->consume(1);
       $this->assertTrue(is_bool($consumed));
@@ -79,7 +79,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $backend = new StaticCache();
       $identifier = "test_token_regen";
       $rate = new TokenRate(PHP_INT_MAX, 1);
-      $bucket = new TokenBucket($identifier, $backend, $rate);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
       list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
       $this->assertTrue(is_bool($consumed));
@@ -87,7 +87,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertTrue(round($timeUntilReady) >= 0,
        "Time until ready is after now");
-      sleep(1);
+      $bucket->setOffset(1);
       $this->assertTrue($bucket->getTokens() > 0, "didn't regen tokens");
    }
 }

@@ -14,9 +14,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
 class TestTokenBucket extends TokenBucket {
    // Used to offset the time of microtime microtime()
    private $offset = 0;
+   private $microtime = null;
 
    protected function microtime() {
-      return microtime(true) + $this->offset;
+      $this->microtime = $this->microtime ?: microtime(true);
+      return $this->microtime + $this->offset;
    }
 
    public function setOffset($offset) {

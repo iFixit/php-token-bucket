@@ -62,7 +62,6 @@ class TokenBucket {
 
       $storedBucket = $this->getStoredBucket();
       $tokens = $this->calculateCurrentTokens($storedBucket);
-      $lastConsume = $storedBucket->getLastConsume();
 
       $updatedTokens = $tokens - $amount;
       if ($updatedTokens < 0) {

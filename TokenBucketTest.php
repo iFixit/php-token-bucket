@@ -127,4 +127,38 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue($consumed);
       $this->assertEquals(0, $timeUntilReady);
    }
+
+   /**
+    * Ensure token rates < 1 tok/sec produce expected behavior.
+    */
+   public function testSlowTokens() {
+      $backend = new StaticCache();
+      $identifier = "test_slow_tokens";
+      $rate = new TokenRate(1, 100);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
+
+      list($consumed, $timeUntilReady) = $bucket->consume(1);
+      $this->assertTrue($consumed);
+      $this->assertEquals(0, $timeUntilReady);
+
+      $bucket->setOffset(20);
+      list($consumed, $timeUntilReady) = $bucket->consume(1);
+      $this->assertFalse($consumed);
+      $this->assertEquals(80, $timeUntilReady);
+   }
+
+   /**
+    * Ensure token rates of 0 is valid
+    */
+   public function testZeroTokenRate() {
+      $backend = new StaticCache();
+      $identifier = "test_zero_rate";
+      $rate = new TokenRate(0, 0);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
+
+      list($consumed, $timeUntilReady) = $bucket->consume(1);
+      $this->assertFalse($consumed);
+      // Never gonna get it cause rate is 0
+      $this->assertNull($timeUntilReady);
+   }
 }

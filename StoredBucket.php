@@ -13,10 +13,10 @@ class StoredBucket {
     */
    public function __construct($tokens, $lastConsume) {
       if (!is_numeric($lastConsume)) {
-         throw new InvalidArgumentException("lastConsume should be an int");
+         throw new InvalidArgumentException("lastConsume should be numeric");
       }
-      if (!is_int($tokens)) {
-         throw new InvalidArgumentException("tokens should be an int");
+      if (!is_numeric($tokens) || $tokens < 0) {
+         throw new InvalidArgumentException("tokens must be a non-negative number");
       }
 
       $this->tokens = $tokens;

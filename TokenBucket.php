@@ -56,8 +56,8 @@ class TokenBucket {
     *               will be enough tokens to consume the amount requested.
     */
    public function consume($amount) {
-      if (!is_int($amount)) {
-         throw new InvalidArgumentException("amount must be an int");
+      if (!is_numeric($amount) || $amount < 0) {
+         throw new InvalidArgumentException("amount must be a non-negative number");
       }
 
       $storedBucket = $this->getStoredBucket();
@@ -105,7 +105,7 @@ class TokenBucket {
          return $tokens;
       }
 
-      $tokens += (int)floor($timeLapse * $this->rate->getRate());
+      $tokens += $timeLapse * $this->rate->getRate();
       // don't go over maximum tokens.
       return min($this->rate->getTokens(), $tokens);
    }
@@ -122,12 +122,14 @@ class TokenBucket {
          throw new InvalidArgumentException("amount must be an int");
       }
 
-      if ($consumeAmount > $this->rate->getTokens()) {
+      if ($consumeAmount > $this->rate->getTokens()
+       || $this->rate->getRate() <= 0) {
          return null;
       }
 
       $tokens = $this->calculateCurrentTokens($stored);
-      return ($consumeAmount - $tokens) / max(1, $this->rate->getRate());
+
+      return ($consumeAmount - $tokens) / $this->rate->getRate();
    }
 
    /**

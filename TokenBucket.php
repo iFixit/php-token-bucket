@@ -129,7 +129,7 @@ class TokenBucket {
       }
 
       $tokens = $this->calculateCurrentTokens($stored);
-      return max(0, $this->rate->getRate() * ($consumeAmount - $tokens));
+      return ($consumeAmount - $tokens) / max(1, $this->rate->getRate());
    }
 
    /**

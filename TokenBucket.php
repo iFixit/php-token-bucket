@@ -111,10 +111,9 @@ class TokenBucket {
    }
 
    /**
-    * Returns the number of seconds from when the amount requested will be
-    * available.
+    * Returns the number of seconds until the request tokens will be available.
     *
-    * If the amount requested is higher than the maximum amouunt of
+    * If the amount requested is higher than the maximum amount of
     * tokens the bucket can hold then return null to show that it will never be
     * ready, since it can never regenerate up to that point.
     */

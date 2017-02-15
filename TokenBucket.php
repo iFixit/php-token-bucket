@@ -60,38 +60,37 @@ class TokenBucket {
          throw new InvalidArgumentException("amount must be an int");
       }
 
-      $now = $this->microtime();
-      $storedBucket = $this->backend->get($this->key);
-      if ($storedBucket === Backend::MISS) {
-         $storedBucket = new StoredBucket($this->rate->getTokens(), $now);
-      }
-      $tokens = $storedBucket->getTokens();
+      $storedBucket = $this->getStoredBucket();
+      $tokens = $this->calculateCurrentTokens($storedBucket);
       $lastConsume = $storedBucket->getLastConsume();
 
       $updatedTokens = $tokens - $amount;
       if ($updatedTokens < 0) {
-         $newBucket = new StoredBucket($tokens, $now);
-         return [false, $this->readyTime($amount, $newBucket)];
+         return [false, $this->readyTime($amount, $storedBucket)];
       }
 
-      $newBucket = new StoredBucket($updatedTokens, $now);
+      $newBucket = new StoredBucket($updatedTokens, $this->microtime());
       $this->storeBucket($newBucket);
-      return [true, $now];
+      return [true, 0];
    }
 
    /**
     * @return $tokens int the total number of tokens in the bucket currently.
     */
    public function getTokens() {
-      $storedBucket = $this->backend->get($this->key);
-      if ($storedBucket === Backend::MISS) {
-         return $this->rate->getTokens();
-      }
-
-      $currentTokens = $storedBucket->getTokens();
-      $lastConsume = $storedBucket->getLastConsume();
+      $storedBucket = $this->getStoredBucket();
       $updatedTokens = $this->calculateCurrentTokens($storedBucket);
       return $updatedTokens;
+   }
+
+   private function getStoredBucket() {
+      $storedBucket = $this->backend->get($this->key);
+      if ($storedBucket === Backend::MISS) {
+         $storedBucket = new StoredBucket($this->rate->getTokens(),
+          $this->microtime());
+      }
+
+      return $storedBucket;
    }
 
    /**
@@ -107,7 +106,7 @@ class TokenBucket {
          return $tokens;
       }
 
-      $tokens += floor($timeLapse * $this->rate->getRate());
+      $tokens += (int)floor($timeLapse * $this->rate->getRate());
       // don't go over maximum tokens.
       return min($this->rate->getTokens(), $tokens);
    }
@@ -129,8 +128,8 @@ class TokenBucket {
          return null;
       }
 
-      $tokens = $stored->getTokens();
-      return min(0, $this->rate->getRate() * ($consumeAmount - $tokens));
+      $tokens = $this->calculateCurrentTokens($stored);
+      return max(0, $this->rate->getRate() * ($consumeAmount - $tokens));
    }
 
    /**

@@ -43,7 +43,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(round($timeUntilReady) >= 0,
        "TimeuntilReady is not now");
 
-      $this->assertSame(9999.0, $bucket->getTokens());
+      $this->assertSame(9999, $bucket->getTokens());
    }
 
    public function testConsumeManyTokens() {
@@ -58,7 +58,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertTrue(0 < round($timeUntilReady), "Ready when the bucket
        shouldn't be");
-      $this->assertSame(0.0, $bucket->getTokens());
+      $this->assertSame(0, $bucket->getTokens());
    }
 
    public function testFailureToConsume() {
@@ -78,16 +78,48 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
    public function testTokenRegeneration() {
       $backend = new StaticCache();
       $identifier = "test_token_regen";
-      $rate = new TokenRate(PHP_INT_MAX, 1);
+      $rate = new TokenRate(1, 1);
       $bucket = new TestTokenBucket($identifier, $backend, $rate);
 
-      list($consumed, $timeUntilReady) = $bucket->consume(PHP_INT_MAX);
+      list($consumed, $timeUntilReady) = $bucket->consume(1);
       $this->assertTrue(is_bool($consumed));
       $this->assertTrue(is_double($timeUntilReady));
       $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertTrue(round($timeUntilReady) >= 0,
        "Time until ready is after now");
+
+      list($consumed, $timeUntilReady) = $bucket->consume(1);
+      $this->assertFalse($consumed);
+
       $bucket->setOffset(1);
       $this->assertTrue($bucket->getTokens() > 0, "didn't regen tokens");
+   }
+
+   /**
+    * Make sure that when we consume we're getting the updated number of tokens
+    * from the last consume.
+    */
+   public function testUpdatedTokensCalculated() {
+      $backend = new StaticCache();
+      $identifier = "test_updated_tokens_calculated";
+      $rate = new TokenRate(10, 10);
+      $bucket = new TestTokenBucket($identifier, $backend, $rate);
+
+      list($consumed, $timeUntilReady) = $bucket->consume(10);
+      $this->assertTrue($consumed);
+      $this->assertTrue(is_double($timeUntilReady));
+
+      $bucket->setOffset(5);
+      // half should be regenerated
+      list($consumed, $timeUntilReady) = $bucket->consume(10);
+      $this->assertFalse($consumed);
+      $this->assertEquals(5, $timeUntilReady);
+
+      $bucket->setOffset(6);
+      // More should be generated than we consume.
+      list($consumed, $timeUntilReady) = $bucket->consume(5);
+      $this->assertTrue($consumed);
+      // it was ready
+      $this->assertEquals(5, 0);
    }
 }

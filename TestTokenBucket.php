@@ -24,6 +24,6 @@ class TestTokenBucket extends TokenBucket {
          throw InvalidArgumentException("offset needs to be numeric");
       }
 
-      $this->offset = $this->offset;
+      $this->offset = $offset;
    }
 }

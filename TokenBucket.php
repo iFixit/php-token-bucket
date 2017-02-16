@@ -24,9 +24,9 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
 class TokenBucket {
    // String to identify this bucket uniquely in storage.
    private $key;
-   // TokenRate is when your parents try to ration your arcade spending.
+   // TokenRate is the rate of regeneration for the TokenBucket.
    private $rate;
-   // Where the token is to be stored.
+   // Where the token bucket is to be stored
    private $backend;
 
    /**
@@ -44,8 +44,7 @@ class TokenBucket {
 
    /**
     * Tries to consume a token, if a token can't be consumed, then the interval
-    * of seconds for when the consume will be valid will be.
-    * is returned for when the next token will be available.
+    * of seconds for when the consume will be valid.
     *
     * @param amount is an integer amount of tokens that will be attempted to be
     * consumed

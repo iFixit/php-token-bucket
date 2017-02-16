@@ -43,7 +43,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(round($timeUntilReady) >= 0,
        "TimeuntilReady is not now");
 
-      $this->assertSame(9999, $bucket->getTokens());
+      $this->assertEquals(9999, $bucket->getTokens());
    }
 
    public function testConsumeManyTokens() {
@@ -57,7 +57,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(is_numeric($timeUntilReady));
       $this->assertTrue($consumed, "Didn't consume a token.");
       $this->assertSame(0, $timeUntilReady, "Wasn't ready after consume");
-      $this->assertSame(0, $bucket->getTokens());
+      $this->assertEquals(0, $bucket->getTokens());
 
       list($consumed, $timeUntilReady) = $bucket->consume(10000);
       $this->assertTrue(is_bool($consumed));
@@ -65,7 +65,7 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
 
       $this->assertFalse($consumed, "Consumed a token.");
       $this->assertEquals(60, $timeUntilReady, "Incorrect ready time");
-      $this->assertSame(0, $bucket->getTokens());
+      $this->assertEquals(0, $bucket->getTokens());
    }
 
    public function testFailureToConsume() {

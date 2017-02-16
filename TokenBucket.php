@@ -47,7 +47,7 @@ class TokenBucket {
     * where $time is the number of seconds until the specified number tokens
     * will be available.
     *
-    * @param amount is an integer amount of tokens that will be attempted to be
+    * @param amount is a numeric amount of tokens that will be attempted to be
     * consumed
     *
     * @return array index 0 being a boolean whether or not a token was consumed

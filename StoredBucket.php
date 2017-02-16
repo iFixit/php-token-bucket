@@ -9,6 +9,8 @@ class StoredBucket {
    private $lastConsume;
 
    /**
+    * @param $tokens either double or integer number of tokens in the bucket at
+    *        the last consume time
     * @param $lastConsume number of seconds since the last consumption.
     */
    public function __construct($tokens, $lastConsume) {

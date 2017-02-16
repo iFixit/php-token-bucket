@@ -43,8 +43,9 @@ class TokenBucket {
    }
 
    /**
-    * Tries to consume a token, if a token can't be consumed, then the interval
-    * of seconds for when the consume will be valid.
+    * Tries to consume a given number of tokens. Returns [$success, $time]
+    * where $time is the number of seconds until the specified number tokens
+    * will be available.
     *
     * @param amount is an integer amount of tokens that will be attempted to be
     * consumed

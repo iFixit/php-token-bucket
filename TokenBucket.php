@@ -101,9 +101,6 @@ class TokenBucket {
       $lastConsume = $stored->getLastConsume();
 
       $timeLapse = $this->microtime() - $lastConsume;
-      if ($timeLapse == 0) {
-         return $tokens;
-      }
 
       $tokens += $timeLapse * $this->rate->getRate();
       // don't go over maximum tokens.

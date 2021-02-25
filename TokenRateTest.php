@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace iFixit\TokenBucket;
 

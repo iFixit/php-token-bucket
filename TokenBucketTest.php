@@ -4,13 +4,11 @@ namespace iFixit\TokenBucket;
 
 error_reporting(E_ALL);
 
-use PHPUnit_Framework_TestCase;
-
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestTokenBucket.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'StaticCache.php';
 
-class TokenBucketTest extends PHPUnit_Framework_TestCase {
+class TokenBucketTest extends \PHPUnit\Framework\TestCase {
    public function testGetSingleToken() {
       $backend = new StaticCache();
       $identifier = "test_get";

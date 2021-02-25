@@ -6,13 +6,11 @@ error_reporting(E_ALL);
 
 use \DateInterval;
 
-use PHPUnit_Framework_TestCase;
-
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
 
 
-class TokenRateTest extends PHPUnit_Framework_TestCase {
+class TokenRateTest extends \PHPUnit\Framework\TestCase {
    public function testRate() {
       $rate = new TokenRate(1, 1);
       $this->assertSame(1.0, $rate->getRate());

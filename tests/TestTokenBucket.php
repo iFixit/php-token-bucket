@@ -1,8 +1,8 @@
 <?php
 
-namespace iFixit\TokenBucket;
+namespace iFixit\TokenBucket\Tests;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
+use iFixit\TokenBucket\TokenBucket;
 
 /**
  * Test class used to override parts of TokenBucket so it can be adjusted for

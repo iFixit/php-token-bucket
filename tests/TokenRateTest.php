@@ -1,14 +1,13 @@
 <?php
 
-namespace iFixit\TokenBucket;
+namespace iFixit\TokenBucket\Tests;
 
 error_reporting(E_ALL);
 
 use \DateInterval;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenBucket.php';
-
+use iFixit\TokenBucket\TokenRate;
+use iFixit\TokenBucket\TokenBucket;
 
 class TokenRateTest extends \PHPUnit\Framework\TestCase {
    public function testRate() {

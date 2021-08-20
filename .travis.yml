@@ -6,4 +6,4 @@ php:
    - 8.0
 
 script:
-   - phpunit .
+   - phpunit tests

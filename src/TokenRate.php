@@ -2,7 +2,7 @@
 
 namespace iFixit\TokenBucket;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
 /**
  * Defines a rate of tokens per second. Specify the tokens you want to

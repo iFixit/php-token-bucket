@@ -38,8 +38,10 @@ class TokenBucketTest extends \PHPUnit\Framework\TestCase {
       $this->assertTrue(is_numeric($timeUntilReady));
       $readyTimestamp = microtime(true) + $timeUntilReady;
       $this->assertTrue($consumed, "Didn't consume token.");
-      $this->assertTrue(round($timeUntilReady) >= 0,
-       "TimeuntilReady is not now");
+      $this->assertTrue(
+         round($timeUntilReady) >= 0,
+         "TimeuntilReady is not now"
+      );
 
       $this->assertEquals(9999, $bucket->getTokens());
    }

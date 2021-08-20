@@ -2,7 +2,7 @@
 
 namespace iFixit\TokenBucket;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
@@ -85,8 +85,10 @@ class TokenBucket {
    private function getStoredBucket() {
       $storedBucket = $this->backend->get($this->key);
       if ($storedBucket === Backend::MISS) {
-         $storedBucket = new StoredBucket($this->rate->getTokens(),
-          $this->microtime());
+         $storedBucket = new StoredBucket(
+            $this->rate->getTokens(),
+            $this->microtime()
+         );
       }
 
       return $storedBucket;

@@ -4,8 +4,7 @@ namespace iFixit\TokenBucket\Tests;
 
 error_reporting(E_ALL);
 
-use \DateInterval;
-
+use DateInterval;
 use iFixit\TokenBucket\TokenRate;
 use iFixit\TokenBucket\TokenBucket;
 

@@ -74,7 +74,7 @@ class TokenBucket {
    }
 
    /**
-    * @return $tokens int the total number of tokens in the bucket currently.
+    * @return int The total number of tokens in the bucket currently.
     */
    public function getTokens() {
       $storedBucket = $this->getStoredBucket();

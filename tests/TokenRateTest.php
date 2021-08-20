@@ -56,4 +56,10 @@ class TokenRateTest extends \PHPUnit\Framework\TestCase {
       $rate = new TokenRate(2, 3600 * 24 * 30);
       $this->assertSame(2 / (3600 * 24 * 30), $rate->getRate());
    }
+
+   public function testGetters() {
+      $rate = new TokenRate(60, 10);
+      $this->assertSame(60, $rate->getTokens());
+      $this->assertSame(10, $rate->getSeconds());
+   }
 }

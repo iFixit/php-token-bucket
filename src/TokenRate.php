@@ -43,6 +43,6 @@ class TokenRate {
    }
 
    public function getSeconds() {
-      return $this->seconds();
+      return $this->seconds;
    }
 }

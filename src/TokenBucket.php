@@ -3,9 +3,8 @@
 namespace iFixit\TokenBucket;
 
 use InvalidArgumentException;
-
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
+use iFixit\TokenBucket\Backend;
+use iFixit\TokenBucket\TokenRate;
 
 /**
  * Implements the token bucket algorithm and stores tokens in storage.

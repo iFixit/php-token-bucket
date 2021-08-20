@@ -2,7 +2,7 @@
 
 namespace iFixit\TokenBucket;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'StoredBucket.php';
+use iFixit\TokenBucket\StoredBucket;
 
 interface Backend {
    /**

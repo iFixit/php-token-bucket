@@ -2,7 +2,7 @@
 
 namespace iFixit\TokenBucket;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
+use iFixit\TokenBucket\Backend;
 
 /**
  * Simple implementation of Backend that doesn't attempt to expire anything

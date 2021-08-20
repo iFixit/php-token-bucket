@@ -4,5 +4,7 @@ php:
    - 7.4
    - 8.0
 
+install: composer install
+
 script:
-   - phpunit tests
+   - vendor/bin/phpunit tests

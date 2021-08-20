@@ -16,5 +16,8 @@
            "iFixit\\TokenBucket\\": "src/",
            "iFixit\\TokenBucket\\Tests\\": "tests/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
     }
 }

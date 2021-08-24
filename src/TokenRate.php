@@ -1,8 +1,8 @@
-<?
+<?php
 
 namespace iFixit\TokenBucket;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
 /**
  * Defines a rate of tokens per second. Specify the tokens you want to
@@ -43,6 +43,6 @@ class TokenRate {
    }
 
    public function getSeconds() {
-      return $this->seconds();
+      return $this->seconds;
    }
 }

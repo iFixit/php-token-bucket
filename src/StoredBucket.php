@@ -1,8 +1,8 @@
-<?
+<?php
 
 namespace iFixit\TokenBucket;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
 class StoredBucket {
    private $tokens;

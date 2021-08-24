@@ -1,0 +1,29 @@
+{
+    "name": "ifixit/php-token-bucket",
+    "description": "PHP library for implementing rate limiting via the Token Bucket algorithm.",
+    "license": "MIT",
+    "config": {                    
+        "platform": {
+            "php": "7.4.0"              
+        }
+    },                             
+    "authors": [
+        {
+            "name": "Guy Moore",
+            "email": "guy@ifixit.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+           "iFixit\\TokenBucket\\": "src/",
+           "iFixit\\TokenBucket\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "vimeo/psalm": "^4.9"
+    }
+}

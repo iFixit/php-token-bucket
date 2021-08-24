@@ -1,16 +1,14 @@
-<?
+<?php
 
-namespace iFixit\TokenBucket;
+namespace iFixit\TokenBucket\Tests;
 
 error_reporting(E_ALL);
 
-use PHPUnit_Framework_TestCase;
+use iFixit\TokenBucket\Tests\TestTokenBucket;
+use iFixit\TokenBucket\TokenRate;
+use iFixit\TokenBucket\StaticCache;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestTokenBucket.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'StaticCache.php';
-
-class TokenBucketTest extends PHPUnit_Framework_TestCase {
+class TokenBucketTest extends \PHPUnit\Framework\TestCase {
    public function testGetSingleToken() {
       $backend = new StaticCache();
       $identifier = "test_get";
@@ -40,8 +38,10 @@ class TokenBucketTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(is_numeric($timeUntilReady));
       $readyTimestamp = microtime(true) + $timeUntilReady;
       $this->assertTrue($consumed, "Didn't consume token.");
-      $this->assertTrue(round($timeUntilReady) >= 0,
-       "TimeuntilReady is not now");
+      $this->assertTrue(
+         round($timeUntilReady) >= 0,
+         "TimeuntilReady is not now"
+      );
 
       $this->assertEquals(9999, $bucket->getTokens());
    }

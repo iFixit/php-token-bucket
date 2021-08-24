@@ -1,11 +1,10 @@
-<?
+<?php
 
 namespace iFixit\TokenBucket;
 
-use \InvalidArgumentException;
-
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'TokenRate.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'Backend.php';
+use InvalidArgumentException;
+use iFixit\TokenBucket\Backend;
+use iFixit\TokenBucket\TokenRate;
 
 /**
  * Implements the token bucket algorithm and stores tokens in storage.
@@ -74,7 +73,7 @@ class TokenBucket {
    }
 
    /**
-    * @return $tokens int the total number of tokens in the bucket currently.
+    * @return int The total number of tokens in the bucket currently.
     */
    public function getTokens() {
       $storedBucket = $this->getStoredBucket();
@@ -85,8 +84,10 @@ class TokenBucket {
    private function getStoredBucket() {
       $storedBucket = $this->backend->get($this->key);
       if ($storedBucket === Backend::MISS) {
-         $storedBucket = new StoredBucket($this->rate->getTokens(),
-          $this->microtime());
+         $storedBucket = new StoredBucket(
+            $this->rate->getTokens(),
+            $this->microtime()
+         );
       }
 
       return $storedBucket;

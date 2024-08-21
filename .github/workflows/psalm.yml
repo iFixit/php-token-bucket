@@ -27,4 +27,4 @@ jobs:
            run: composer install
 
          - name: Run psalm
-           run: ./vendor/bin/psalm --output-format=github --update-baseline
+           run: ./vendor/bin/psalm --output-format=github
